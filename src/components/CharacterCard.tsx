@@ -6,6 +6,7 @@ type PropsCharacter = {
   character: Character
 }
 
+// Card do Dashboard
 export function CharacterCard({ character }: PropsCharacter) {
   const navigate = useNavigate();
 
@@ -32,7 +33,7 @@ export function CharacterCard({ character }: PropsCharacter) {
         <p className="text-sm text-text-muted">{character.universe}</p>
 
         <div className="mt-3 flex items-center justify-between">
-          <span className="text-xs text-secondary">{character.totalFigures} figuras</span>
+          <span className="text-xs text-secondary">{character.id} figuras</span>
 
           <span className="text-xs text-accent">
             Ver mais →

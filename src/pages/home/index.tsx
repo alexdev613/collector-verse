@@ -12,7 +12,7 @@ export default function Home() {
       </p>
 
       <Link
-        to="/dashboard/figures"
+        to="/dashboard/characters"
         className="bg-primary px-6 py-3 rounded-xl font-medium hover:opacity-90 transition"
       >
         Explorar coleção

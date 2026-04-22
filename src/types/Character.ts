@@ -3,7 +3,6 @@ export type Character = {
   name: string
   universe: string
   image: string
-  totalFigures: number
 }
 
 /**

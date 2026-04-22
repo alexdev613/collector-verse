@@ -6,54 +6,54 @@ export const characters = [
     name: "Psylocke",
     universe: "Marvel",
     image: "https://i.imgur.com/tyNU2eX.jpeg",
-    totalFigures: 3,
   },
   {
     id: "wolverine",
     name: "Wolverine",
     universe: "Marvel",
     image: "https://i.imgur.com/nMWk4IL.jpeg",
-    totalFigures: 5
   },
   {
     id: "rogue",
     name: "Vampira (Rogue)",
     universe: "Marvel",
     image: "https://i.imgur.com/oabPXPW.gif",
-    totalFigures: 2
   },
   {
     id: "jean-gray",
     name: "Jean Grey",
     universe: "Marvel",
     image: "https://i.imgur.com/JiGkliT_d.webp?maxwidth=760&fidelity=grand",
-    totalFigures: 2
   },
   {
     id: "colossus",
     name: "Colossus",
     universe: "Marvel",
     image: "https://i.imgur.com/b2dXKgB.jpeg",
-    totalFigures: 2
   },
   {
     id: "captain-america",
     name: "Capitão América",
     universe: "Marvel",
     image: "https://i.imgur.com/0AFaxPn.jpeg",
-    totalFigures: 2
   },
   {
     id: "hulk",
     name: "Hulk",
     universe: "Marvel",
     image: "https://i.imgur.com/9RJjV7T.jpeg",
-    totalFigures: 2
+  },
+  {
+    id: "thanos",
+    name: "Thanos",
+    universe: "Marvel",
+    image: "https://i.imgur.com/dHTCWrx.jpeg",
   },
 
 ];
 
-export default function FiguresDashboard() {
+// http://localhost:5173/dashboard/characters
+export default function CharactersDashboard() {
   return (
     <div className="min-h-screen bg-background text-text px-6 py-10 max-w-7xl mx-auto">
       <h1 className="text-3xl font-bold mb-8">Personagens</h1>

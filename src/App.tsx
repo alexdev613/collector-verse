@@ -2,7 +2,8 @@ import { createBrowserRouter } from "react-router-dom";
 import { Layout } from "./components/layout";
 
 import Home from "./pages/home";
-import FiguresDashboard from "./pages/dashboard/figures";
+import CharactersDashboard from "./pages/dashboard/characters";
+import CharacterPage from "./pages/characters";
 
 const router = createBrowserRouter([
   {
@@ -13,12 +14,12 @@ const router = createBrowserRouter([
         element: <Home />
       },
       {
-        path: "/dashboard/figures",
-        element: <FiguresDashboard />,
+        path: "/dashboard/characters",
+        element: <CharactersDashboard />,
       },
       {
         path: "/characters/:id",
-        element: <div className="text-white p-6">Character Page (mock)</div>
+        element: <CharacterPage />
       }
     ]
   }
