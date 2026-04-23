@@ -4,6 +4,8 @@ import { InfoSection } from "../../components/InfoSection";
 import { characterDetails } from "../../data/characterDetails";
 import { figuresByCharacter } from "../../data/figures";
 
+import { FigureCard } from "../../components/FigureCard";
+
 // Relação 1 personagem → N figures
 // Página do Personagem:
 export default function CharacterPage() {
@@ -110,50 +112,11 @@ export default function CharacterPage() {
               </div>
             ) : (
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                
                 {figures.map((figure) => (
-                  <div
-                    key={figure.id}
-                    onClick={() => navigate(`/figures/${figure.id}`)}
-                    className="bg-card rounded-xl border border-border overflow-hidden 
-                    hover:scale-[1.02] hover:shadow-lg hover:shadow-black/20 transition cursor-pointer"
-                  >
-                    <div className="w-full h-40 bg-surface flex items-center justify-center overflow-hidden">
-                      {figure.image ? (
-                        <img
-                          src={figure.image}
-                          alt={figure.name}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="flex flex-col items-center justify-center text-text-muted text-xs">
-                          <span>📦</span><span>Sem imagem</span>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="p-3">
-                      <p className="text-sm font-medium mb-1">{figure.name || "Figura sem nome"}</p>
-                      <hr className="border-border my-1" />
-
-                      {/* BRAND + LINE */}
-                      {(figure.brand || figure.line) && (
-                        <p className="mt-1 text-xs text-text-muted">
-                          {[figure.brand, figure.line].filter(Boolean).join(" • ")}
-                        </p>
-                      )}
-
-                      {/* YEAR + SCALE */}
-                      {(figure.releaseYear || figure.scale) && (
-                        <p className="text-xs text-text-muted">
-                          {figure.releaseYear && <>Ano: {figure.releaseYear}</>}
-                          {figure.releaseYear && figure.scale && " • "}
-                          {figure.scale && <>Escala: {figure.scale}</>}
-                        </p>
-                      )}
-                    </div>
-
-                  </div>
+                  <FigureCard key={figure.id} figure={figure} />
                 ))}
+                
               </div>
             )}
 
