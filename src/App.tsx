@@ -5,6 +5,8 @@ import Home from "./pages/home";
 import CharactersDashboard from "./pages/dashboard/characters";
 import CharacterPage from "./pages/characters";
 
+import FigurePage from "./pages/figures";
+
 const router = createBrowserRouter([
   {
     element: <Layout />,
@@ -20,6 +22,10 @@ const router = createBrowserRouter([
       {
         path: "/characters/:id",
         element: <CharacterPage />
+      },
+      {
+        path: "/figures/:id",
+        element: <FigurePage />
       }
     ]
   }
