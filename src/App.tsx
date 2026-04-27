@@ -4,6 +4,7 @@ import { Layout } from "./components/layout";
 import Home from "./pages/home";
 import CharactersDashboard from "./pages/dashboard/characters";
 import CharacterPage from "./pages/characters";
+import NewCharacterPage from "./pages/characters/new";
 
 import FigurePage from "./pages/figures";
 
@@ -18,6 +19,10 @@ const router = createBrowserRouter([
       {
         path: "/dashboard/characters",
         element: <CharactersDashboard />,
+      },
+      {
+        path: "/characters/new",
+        element: <NewCharacterPage />
       },
       {
         path: "/characters/:id",
