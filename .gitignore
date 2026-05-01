@@ -22,3 +22,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Arquivos apenas pra documentação e estudo
+src/lib/characterStorage.study.ts
+
+# Para ignorar todos os arquivos .study.ts:
+*.study.ts
