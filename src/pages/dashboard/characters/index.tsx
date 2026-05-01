@@ -1,60 +1,11 @@
 import { Link } from "react-router-dom";
 import { CharacterCard } from "../../../components/CharacterCard";
-
-export const characters = [
-  {
-    id: "psylocke",
-    name: "Psylocke",
-    universe: "Marvel",
-    image: "https://i.imgur.com/tyNU2eX.jpeg",
-  },
-  {
-    id: "wolverine",
-    name: "Wolverine",
-    universe: "Marvel",
-    image: "https://i.imgur.com/nMWk4IL.jpeg",
-  },
-  {
-    id: "rogue",
-    name: "Vampira (Rogue)",
-    universe: "Marvel",
-    image: "https://i.imgur.com/oabPXPW.gif",
-  },
-  {
-    id: "jean-gray",
-    name: "Jean Grey",
-    universe: "Marvel",
-    image: "https://i.imgur.com/JiGkliT_d.webp?maxwidth=760&fidelity=grand",
-  },
-  {
-    id: "colossus",
-    name: "Colossus",
-    universe: "Marvel",
-    image: "https://i.imgur.com/b2dXKgB.jpeg",
-  },
-  {
-    id: "captain-america",
-    name: "Capitão América",
-    universe: "Marvel",
-    image: "https://i.imgur.com/0AFaxPn.jpeg",
-  },
-  {
-    id: "hulk",
-    name: "Hulk",
-    universe: "Marvel",
-    image: "https://i.imgur.com/9RJjV7T.jpeg",
-  },
-  {
-    id: "thanos",
-    name: "Thanos",
-    universe: "Marvel",
-    image: "https://i.imgur.com/dHTCWrx.jpeg",
-  },
-
-];
+import { getCharacters } from "../../../lib/characterStorage"; // função para pegar os personagens salvos no localStorage.
 
 // http://localhost:5173/dashboard/characters
 export default function CharactersDashboard() {
+  const characters = getCharacters(); // getCharacters para listar os personagens, tanto mockados quanto criados editados pelo usuário
+
   return (
     <div className="min-h-screen bg-background text-text px-6 py-10 max-w-7xl mx-auto">
       <div className="flex justify-between items-center">

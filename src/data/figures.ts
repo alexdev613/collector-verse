@@ -1,5 +1,7 @@
 // Mock das figuras:
-export const figuresByCharacter = {
+import type { Figure } from "../types/Figure";
+
+export const figuresByCharacter: Record<string, Figure[]> = {
   wolverine: [
     {
       id: "wolverine-xforce",
@@ -20,6 +22,7 @@ export const figuresByCharacter = {
       scale: "1/12", // 1/12, 1/10, 1/6
 
       pack: { // Não obrigatório, o usuário pode não saber, ter comprado avulso ou não ter mais o item, mas querer ele no sistema por cadastro
+        id: "wolverine-sabretooth-2pack",
         type: "2-pack",
         name: "Wolverine vs Sabretooth",
         includes: [

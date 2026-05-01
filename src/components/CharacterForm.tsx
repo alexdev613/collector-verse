@@ -1,6 +1,7 @@
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import type { Character } from "../types/Character";
+import { saveCharacter, characterExists } from "../lib/characterStorage"; // funções para salvar personagem e verificar existência de id duplicado no localStorage
 
 type FormData = {
   name: string;
@@ -17,13 +18,13 @@ export function CharacterForm() {
 
   function generateSlug(text: string) {
     return text
-    .toLowerCase()
-    .normalize("NFD") // separa os acentos
-    .replace(/[\u0300-\u036f]/g, "") // remove os acentos
-    .replace(/\s+/g, "-") // substitui espaços por hífens
-    .replace(/[^\w-]+/g, "") // remove caracteres especiais
-    .replace(/--+/g, "-") // substitui múltiplos hífens por um único
-    .replace(/^-+|-+$/g, ""); // remove hífens do início e fim
+      .toLowerCase()
+      .normalize("NFD") // separa os acentos
+      .replace(/[\u0300-\u036f]/g, "") // remove os acentos
+      .replace(/\s+/g, "-") // substitui espaços por hífens
+      .replace(/[^\w-]+/g, "") // remove caracteres especiais
+      .replace(/--+/g, "-") // substitui múltiplos hífens por um único
+      .replace(/^-+|-+$/g, ""); // remove hífens do início e fim
   }
 
   function onSubmit(data: FormData) {
@@ -35,11 +36,14 @@ export function CharacterForm() {
       image: data.image
     }
 
-    console.log("Novo Personagem:", newCharacter);
-
+    try {
+      saveCharacter(newCharacter);
+      console.log("Novo Personagem:", newCharacter);
+      navigate("/dashboard/characters");
+    } catch (error: any) {
+      alert(error.message);
+    }
     // 🔥 depois vamos salvar no Firebase, por enquanto só log
-
-    navigate("/dashboard/characters");
   }
 
   return (
@@ -54,8 +58,28 @@ export function CharacterForm() {
         {/* NOME */}
         <div>
           <label className="text-sm">Nome</label>
+          {/* 
+            🔍 Validação do nome do personagem
+
+            - required: garante que o campo não fique vazio
+            - validate:
+                • transforma o nome em slug (id único e padronizado)
+                • verifica se já existe um personagem com esse id
+                • se existir → retorna mensagem de erro
+                • se não existir → retorna true (validação passa)
+
+            👉 Isso impede duplicidade mesmo com variações de acento, espaço ou maiúsculas
+          */}
           <input
-            {...register("name", { required: "Nome é obrigatório" })}
+            {...register("name", {
+              required: "Nome é obrigatório",
+              validate: (value) => {
+                const id = generateSlug(value);
+                const exists = characterExists(id);
+
+                return !exists || "Já existe um personagem com esse nome!";
+              }
+            })}
             className="w-full mt-1 p-2 rounded bg-surface border border-border"
           />
           {errors.name && (
@@ -88,7 +112,7 @@ export function CharacterForm() {
           />
         </div>
 
-         {/* BOTÕES */}
+        {/* BOTÕES */}
         <div className="flex gap-2 pt-4">
           <button
             type="submit"

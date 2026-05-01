@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { characters } from "../dashboard/characters";
+import { characters } from "../../data/characters";
 import { InfoSection } from "../../components/InfoSection";
 import { characterDetails } from "../../data/characterDetails";
 import { figuresByCharacter } from "../../data/figures";
