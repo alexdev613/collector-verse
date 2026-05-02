@@ -93,3 +93,9 @@ export function characterExists(id: string): boolean {
   // some retorna true se enctrar algum personagem com esse id, ou false se não encontrar.
   return characters.some((c) => c.id === id);
 }
+
+export function getCharacterById(id: string): Character | null {
+  const characters = getCharacters();
+
+  return characters.find((c) => c.id === id) ?? null;
+}

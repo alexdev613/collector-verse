@@ -5,6 +5,7 @@ import Home from "./pages/home";
 import CharactersDashboard from "./pages/dashboard/characters";
 import CharacterPage from "./pages/characters";
 import NewCharacterPage from "./pages/characters/new";
+import EditCharacterPage from "./pages/characters/edit";
 
 import FigurePage from "./pages/figures";
 
@@ -31,6 +32,10 @@ const router = createBrowserRouter([
       {
         path: "/figures/:id",
         element: <FigurePage />
+      },
+      {
+        path: "/characters/:id/edit",
+        element: <EditCharacterPage />
       }
     ]
   }

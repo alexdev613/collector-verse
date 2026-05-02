@@ -3,16 +3,21 @@ import { useNavigate } from "react-router-dom";
 import type { Character } from "../types/Character";
 import { saveCharacter, characterExists } from "../lib/characterStorage"; // funções para salvar personagem e verificar existência de id duplicado no localStorage
 
+type Props = {
+  defaultValues?: Character;
+  isEditing?: boolean;
+}
+
 type FormData = {
   name: string;
   universe: string;
   image: string;
 };
 
-export function CharacterForm() {
+export function CharacterForm({ defaultValues, isEditing }: Props) {
   const navigate = useNavigate();
 
-  const { register, handleSubmit, watch, formState: { errors } } = useForm<FormData>();
+  const { register, handleSubmit, watch, formState: { errors } } = useForm<FormData>({ defaultValues: defaultValues });
 
   const imageUrl = watch("image");
 
@@ -28,21 +33,24 @@ export function CharacterForm() {
   }
 
   function onSubmit(data: FormData) {
-    const newCharacter: Character = {
-      // id: crypto.randomUUID(),
-      id: generateSlug(data.name),
+    const id = isEditing && defaultValues
+      ? defaultValues.id // mantém o mesmo id (slug) se estiver editando
+      : generateSlug(data.name); // gera um novo id (slug) a partir do nome se for criação
+
+    const character: Character = {
+      id,
       name: data.name,
       universe: data.universe,
       image: data.image
     }
 
     try {
-      saveCharacter(newCharacter);
-      console.log("Novo Personagem:", newCharacter);
+      saveCharacter(character);
       navigate("/dashboard/characters");
     } catch (error: any) {
       alert(error.message);
     }
+
     // 🔥 depois vamos salvar no Firebase, por enquanto só log
   }
 
@@ -50,7 +58,7 @@ export function CharacterForm() {
     <div className="max-w-xl mx-auto bg-card p-6 rounded-xl border border-border">
 
       <h2 className="text-xl font-semibold mb-4">
-        Novo Personagem
+        {isEditing ? "Editar Personagem" : "Novo Personagem"}
       </h2>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -74,7 +82,19 @@ export function CharacterForm() {
             {...register("name", {
               required: "Nome é obrigatório",
               validate: (value) => {
-                const id = generateSlug(value);
+                // 🔧 Normaliza o nome para um slug (id único)
+                // remove espaços extras, acentos e padroniza
+                const id = generateSlug(value.trim());
+
+                // 🔥 MODO EDIÇÃO:
+                // Se o id gerado for o mesmo do personagem atual,
+                // significa que o nome não mudou → permite salvar
+                const isSameCharacter = isEditing && defaultValues?.id === id;
+                if (isSameCharacter) return true;
+
+                // 🚫 BLOQUEIO DE DUPLICIDADE:
+                // Para criação OU edição com nome alterado,
+                // impede salvar se já existir outro personagem com esse id
                 const exists = characterExists(id);
 
                 return !exists || "Já existe um personagem com esse nome!";
@@ -118,12 +138,12 @@ export function CharacterForm() {
             type="submit"
             className="bg-primary px-4 py-2 rounded text-white"
           >
-            Criar
+            {isEditing ? "Salvar alterações" : "Criar personagem"}
           </button>
 
           <button
             type="button"
-            onClick={() => navigate(-1)}
+            onClick={() => navigate("/dashboard/characters")}
             className="bg-surface px-4 py-2 rounded border border-border"
           >
             Cancelar
