@@ -99,3 +99,21 @@ export function getCharacterById(id: string): Character | null {
 
   return characters.find((c) => c.id === id) ?? null;
 }
+
+// Deletando personagem pelo id:
+export function deleteCharacter(id: string) {
+  const stored = localStorage.getItem(STORAGE_KEY);
+
+  let parsed: Character[] = [];
+
+  try {
+    parsed = stored ? JSON.parse(stored) : [];
+  } catch {
+    parsed = [];
+  }
+
+  // remove o personagem pelo id
+  const filtered = parsed.filter((c) => c.id !== id);
+
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+}

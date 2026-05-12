@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import type { Character } from "../types/Character";
 import { BsTrash } from "react-icons/bs";
 import { FaPencil } from "react-icons/fa6";
+import { deleteCharacter } from "../lib/characterStorage";
 
 type PropsCharacter = {
   character: Character
@@ -21,7 +22,17 @@ export function CharacterCard({ character }: PropsCharacter) {
     >
       <div className="relative w-full overflow-hidden rounded-t-2xl ">
         <button
-          onClick={(e) => { e.stopPropagation(); alert("Deletar personagem? (função não implementada ainda!)") }}
+          onClick={(e) => {
+            e.stopPropagation();
+            
+            const confirmDelete = confirm("Tem certeza que deseja deletar?");
+
+            if (confirmDelete) {
+              deleteCharacter(character.id);
+              window.location.reload();
+            }
+
+          }}
           className="absolute z-10 bg-white/80 hover:bg-white w-8 h-8 rounded-full flex items-center justify-center left-2 top-2 drop-shadow transition"
         >
           <BsTrash size={12} color="#222" />
