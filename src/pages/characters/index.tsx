@@ -1,5 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { characters } from "../../data/characters";
+// import { characters } from "../../data/characters";
+import { getCharacters } from "../../lib/characterStorage";
 import { InfoSection } from "../../components/InfoSection";
 import { characterDetails } from "../../data/characterDetails";
 import { figuresByCharacter } from "../../data/figures";
@@ -12,6 +13,7 @@ export default function CharacterPage() {
   const { id } = useParams();
   const navigate = useNavigate();
 
+  const characters = getCharacters();
   const character = characters.find((c) => c.id === id) ?? null;
 
   if (!character) {
