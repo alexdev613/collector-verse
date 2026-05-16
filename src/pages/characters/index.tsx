@@ -3,7 +3,9 @@ import { useParams, useNavigate } from "react-router-dom";
 import { getCharacters } from "../../lib/characterStorage";
 import { InfoSection } from "../../components/InfoSection";
 import { characterDetails } from "../../data/characterDetails";
-import { figuresByCharacter } from "../../data/figures";
+// import { figuresByCharacter } from "../../data/figures";
+import { getFigures } from "../../lib/figureStorage";
+
 
 import { FigureCard } from "../../components/FigureCard";
 
@@ -30,7 +32,11 @@ export default function CharacterPage() {
   //   return <div className="p-6">Sem detalhes ainda...</div>
   // }
 
-  const figures = id ? figuresByCharacter[id as keyof typeof figuresByCharacter] ?? [] : [];
+  // const figures = id ? figuresByCharacter[id as keyof typeof figuresByCharacter] ?? [] : [];
+
+  const figures = getFigures().filter(
+    (figure) => figure.characterId === id
+  );
 
   return (
     <div className="bg-background text-text min-h-screen">
