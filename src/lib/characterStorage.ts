@@ -23,7 +23,13 @@ export function getCharacters(): Character[] {
   if (!stored) return mockCharacters;
 
   // transforma string JSON em array de objetos
-  const parsed: Character[] = JSON.parse(stored);
+  let parsed: Character[] = [];
+
+  try {
+    parsed = JSON.parse(stored);
+  } catch {
+    parsed = [];
+  }
 
   // começa com os personagens mockados
   const merged = [...mockCharacters];
@@ -56,7 +62,7 @@ export function getCharacters(): Character[] {
 export function saveCharacter(character: Character) {
   // tenta pegar os dados já salvos no navegador
   const stored = localStorage.getItem(STORAGE_KEY);
-  
+
   // Se existir algo salvo, vem como string JSON, que precisa converter para array de objetos, se não existir, começa com array vazio
   // const parsed: Character[] = stored ? JSON.parse(stored) : [];
   // Porém se o localStorage tiver algo corrompido que não seja um JSON válido, isso vai quebrar a aplicação.
