@@ -25,6 +25,7 @@ dist-ssr
 
 # Arquivos apenas pra documentação e estudo
 src/lib/characterStorage.study.ts
+src/data/figures.old.ts
 
 # Para ignorar todos os arquivos .study.ts:
 *.study.ts
