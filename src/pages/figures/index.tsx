@@ -1,17 +1,16 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { figuresByCharacter } from "../../data/figures";
-import type { Figure } from "../../types/Figure";
+import { getFigures } from "../../lib/figureStorage";
 
-// NÃO BUISCA POR PERSONAGEM, BUSCA GLOBALMENTE POR FIGURE!! Porque /figures/:id é uma entidade própria 👉 independe de onde o usuário veio
+// NÃO BUSCA POR PERSONAGEM, BUSCA GLOBALMENTE POR FIGURE!! Porque /figures/:id é uma entidade própria 👉 independe de onde o usuário veio
 
 export default function FigurePage() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  // 🔥 transforma tudo em uma lista única com todas as figures
-  const allFigures: Figure[] = Object.values(figuresByCharacter).flat();
+  // 🔥 agora vem da storage layer
+  const allFigures = getFigures();
 
-  // Procura a figure pelo id, independente do personagem
+  // procura figure pelo id
   const figure = allFigures.find((fig) => fig.id === id);
 
   if (!figure) {
