@@ -112,7 +112,16 @@ export default function CharacterPage() {
 
           {/* Figures Section */}
           <div>
-            <h2 className="text-xl font-semibold mb-4">Action Figures</h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold mb-4">Action Figures</h2>
+
+              <button
+                onClick={() => navigate(`/characters/${character.id}/figures/new`)}
+                className="bg-primary px-4 py-2 rounded text-sm text-white"
+              >
+                + Adicionar Figure
+              </button>
+            </div>
 
             {figures.length === 0 ? (
               <div className="bg-card border border-border rounded-xl p-6 text-center text-text-muted">
@@ -120,11 +129,11 @@ export default function CharacterPage() {
               </div>
             ) : (
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                
+
                 {figures.map((figure) => (
                   <FigureCard key={figure.id} figure={figure} />
                 ))}
-                
+
               </div>
             )}
 

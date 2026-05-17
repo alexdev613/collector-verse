@@ -3,11 +3,14 @@ import { Layout } from "./components/layout";
 
 import Home from "./pages/home";
 import CharactersDashboard from "./pages/dashboard/characters";
+
 import CharacterPage from "./pages/characters";
 import NewCharacterPage from "./pages/characters/new";
 import EditCharacterPage from "./pages/characters/edit";
 
 import FigurePage from "./pages/figures";
+import CreateFigurePage from "./pages/figures/new";
+import EditFigurePage from "./pages/figures/edit";
 
 const router = createBrowserRouter([
   {
@@ -36,6 +39,15 @@ const router = createBrowserRouter([
       {
         path: "/characters/:id/edit",
         element: <EditCharacterPage />
+      },
+
+      {
+        path: "/characters/:characterId/figures/new",
+        element: <CreateFigurePage />
+      },
+      {
+        path: "/figures/:id/edit",
+        element: <EditFigurePage />
       }
     ]
   }

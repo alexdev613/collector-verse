@@ -96,7 +96,7 @@ export function characterExists(id: string): boolean {
   // Usa a fonte de verdade (mock + localStorage), pegando lista atualizada de personagens!
   const characters = getCharacters();
 
-  // some retorna true se enctrar algum personagem com esse id, ou false se não encontrar.
+  // some retorna true se encontrar algum personagem com esse id, ou false se não encontrar.
   return characters.some((c) => c.id === id);
 }
 

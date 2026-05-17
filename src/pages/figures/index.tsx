@@ -1,5 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { getFigures } from "../../lib/figureStorage";
+import { getFigures, deleteFigure } from "../../lib/figureStorage";
+import { BsTrash } from "react-icons/bs";
 
 // NÃO BUSCA POR PERSONAGEM, BUSCA GLOBALMENTE POR FIGURE!! Porque /figures/:id é uma entidade própria 👉 independe de onde o usuário veio
 
@@ -69,8 +70,28 @@ export default function FigurePage() {
         </span>
       </div>
 
+      <div className="max-w-6xl mx-auto px-6 py-2 flex justify-between items-center">
+        <p className="px-4 text-xl font-bold">{figure.name}</p>
+        <button
+          onClick={() => {
+            const confirmed = confirm(
+              "Deseja realmente excluir esta figure?"
+            );
+
+            if (!confirmed) return; // se não estiver confirmed, não faça nada!
+
+            deleteFigure(figure.id);
+
+            navigate(`/characters/${figure.characterId}`);
+          }}
+          className="bg-red-600 px-4 py-2 rounded hover:bg-red-700 duration-500 flex items-center gap-1"
+        >
+          <span>Excluir</span> <BsTrash size={16} color="#fff" />
+        </button>
+      </div>
+
       {/* CONTEÚDO */}
-      <div className="max-w-6xl mx-auto px-6 py-10 space-y-10">
+      <div className="max-w-6xl mx-auto px-6 pt-2 pb-10 space-y-10">
 
         {/* INFO CARDS */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
