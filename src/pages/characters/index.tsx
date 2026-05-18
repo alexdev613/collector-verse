@@ -59,7 +59,7 @@ export default function CharacterPage() {
         <div className="absolute inset-0 bg-black/60" />
 
         <button
-          onClick={() => navigate(-1)}
+          onClick={() => navigate(`/dashboard/characters`)}
           className="absolute top-4 left-4 bg-black/50 px-3 py-1 rounded-md text-sm hover:bg-black/70"
         >
           ← Voltar

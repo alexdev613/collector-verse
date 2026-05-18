@@ -1,8 +1,10 @@
 import { Outlet } from "react-router-dom";
+import { ScrollToTop } from "../scrollToTop";
 
 export function Layout() {
   return (
     <div className="bg-background min-h-screen">
+      <ScrollToTop />
       <header className="bg-surface border-b border-border px-6 py-4 flex items-center justify-between">
         <h1 className="text-lg font-semibold">CollectorVerse</h1>
 
