@@ -14,6 +14,9 @@ export type Figure = {
   releaseYear?: number | null
   scale?: string
 
+  // SKU / código da fabricante // No futuro quem sabe podemos pesquisar SKU futuramente para buscar infos e até fazer preenchimento automático de alguns campos, mas por enquanto não é necessário
+  sku?: string | null;
+
   pack?: {
     id: string
     type: string

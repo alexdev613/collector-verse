@@ -139,6 +139,13 @@ export default function FigurePage() {
               <p><span className="text-text-muted">Versão:</span> {figure.variant}</p>
             )}
 
+            {figure.sku && (
+              <p>
+                <span className="text-text-muted">SKU:</span>
+                <span className="ml-1 font-mono">{figure.sku}</span>
+              </p>
+            )}
+
           </div>
         </div>
 

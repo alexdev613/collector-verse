@@ -28,6 +28,8 @@ type FormData = {
   releaseYear?: number | null;
   scale?: string;
 
+  sku?: string | null;
+
   image?: string | null;
 
   inCollection: boolean;
@@ -87,6 +89,8 @@ export function FigureForm({ defaultValues, isEditing, presetCharacterId }: Prop
 
       scale: data.scale || "Não informada",
 
+      sku: data.sku || null,
+
       image: data.image || null,
 
       inCollection: data.inCollection
@@ -114,8 +118,9 @@ export function FigureForm({ defaultValues, isEditing, presetCharacterId }: Prop
 
         {/* NOME */}
         <div>
-          <label className="text-sm">Nome</label>
+          <label htmlFor="name" className="text-sm">Nome</label>
           <input
+            id="name"
             {...register("name", {
               required: "Nome é obrigatório",
 
@@ -144,8 +149,9 @@ export function FigureForm({ defaultValues, isEditing, presetCharacterId }: Prop
 
         {/* BRAND */}
         <div>
-          <label className="text-sm">Marca</label>
+          <label htmlFor="brand" className="text-sm">Marca</label>
           <input
+            id="brand"
             {...register("brand", { required: "Marca é obrigatória" })}
             className="w-full mt-1 p-2 rounded bg-surface border border-border"
           />
@@ -153,8 +159,9 @@ export function FigureForm({ defaultValues, isEditing, presetCharacterId }: Prop
 
         {/* LINE */}
         <div>
-          <label className="text-sm">Linha</label>
+          <label htmlFor="line" className="text-sm">Linha</label>
           <input
+            id="line"
             {...register("line", { required: "Linha é obrigatória" })}
             className="w-full mt-1 p-2 rounded bg-surface border border-border"
           />
@@ -162,8 +169,9 @@ export function FigureForm({ defaultValues, isEditing, presetCharacterId }: Prop
 
         {/* WAVE */}
         <div>
-          <label className="text-sm">Wave</label>
+          <label htmlFor="wave" className="text-sm">Wave</label>
           <input
+            id="wave"
             {...register("wave")}
             className="w-full mt-1 p-2 rounded bg-surface border border-border"
           />
@@ -171,17 +179,19 @@ export function FigureForm({ defaultValues, isEditing, presetCharacterId }: Prop
 
         {/* UNIVERSO */}
         <div>
-          <label className="text-sm">Universo</label>
+          <label htmlFor="universe" className="text-sm">Universo</label>
           <input
+            id="universe"
             {...register("universe", { required: "Universo é obrigatório" })}
             className="w-full mt-1 p-2 rounded bg-surface border border-border"
           />
         </div>
 
-         {/* CHARACTER ID */}
+        {/* CHARACTER ID */}
         <div>
-          <label className="text-sm">Character ID</label>
+          <label htmlFor="characterId" className="text-sm">Character ID</label>
           <input
+            id="characterId"
             {...register("characterId", { required: "CharacterId é obrigatório" })}
             className="w-full mt-1 p-2 rounded bg-surface border border-border read-only:opacity-60 read-only:cursor-not-allowed"
             readOnly={!!presetCharacterId || isEditing} // evita edição quando existir presetCharacterId ou se estiver em edição!
@@ -190,8 +200,9 @@ export function FigureForm({ defaultValues, isEditing, presetCharacterId }: Prop
 
         {/* RELEASE YEAR */}
         <div>
-          <label className="text-sm">Ano</label>
+          <label htmlFor="releaseYear" className="text-sm">Ano</label>
           <input
+            id="releaseYear"
             type="number"
             {...register("releaseYear")}
             className="w-full mt-1 p-2 rounded bg-surface border border-border"
@@ -200,17 +211,39 @@ export function FigureForm({ defaultValues, isEditing, presetCharacterId }: Prop
 
         {/* SCALE */}
         <div>
-          <label className="text-sm">Escala</label>
+          <label htmlFor="scale" className="text-sm">Escala</label>
           <input
+            id="scale"
             {...register("scale")}
+            className="w-full mt-1 p-2 rounded bg-surface border border-border"
+          />
+        </div>
+
+        {/* SKU */}
+        <div>
+          <div className="flex justify-between">
+            <label htmlFor="sku" className="text-sm">
+              SKU <span className="text-text-muted">(opcional)
+              </span>
+            </label>
+            <span className="text-[0.525rem] text-orange-400 self-end">
+              (*) Código do fabricante
+            </span>
+          </div>
+
+          <input
+            id="sku"
+            {...register("sku")}
+            placeholder="Ex.: F6543"
             className="w-full mt-1 p-2 rounded bg-surface border border-border"
           />
         </div>
 
         {/* IMAGE */}
         <div>
-          <label className="text-sm">Imagem (URL)</label>
+          <label htmlFor="image" className="text-sm">Imagem (URL)</label>
           <input
+            id="image"
             {...register("image")}
             className="w-full mt-1 p-2 rounded bg-surface border border-border"
           />
