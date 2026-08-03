@@ -2,6 +2,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import { getFigures, deleteFigure } from "../../lib/figureStorage";
 import { BsTrash } from "react-icons/bs";
 
+import { FigureGallery } from "../../components/FigureGallery";
+
 // NÃO BUSCA POR PERSONAGEM, BUSCA GLOBALMENTE POR FIGURE!! Porque /figures/:id é uma entidade própria 👉 independe de onde o usuário veio
 
 export default function FigurePage() {
@@ -148,6 +150,9 @@ export default function FigurePage() {
 
           </div>
         </div>
+
+        {/* GALERIA */}
+        <FigureGallery figureId={figure.id} />
 
         {/* GALERIA (mock) */}
         <div>

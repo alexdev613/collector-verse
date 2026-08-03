@@ -1,13 +1,48 @@
 import { useState } from "react";
 
-import { getFigurePhotos } from "../../lib/figurePhotoStorage";
+import { getFigurePhotos, saveFigurePhoto } from "../../lib/figurePhotoStorage";
+import type { FigurePhoto } from "../../types/FigurePhoto";
 
 type Props = {
   figureId: string;
 };
 
 export function FigureGallery({ figureId }: Props) {
-  const [photos] = useState(getFigurePhotos(figureId));
+  const [photos, setPhotos] = useState(getFigurePhotos(figureId));
+
+  function handleUpload(
+    event: React.ChangeEvent<HTMLInputElement>
+  ) {
+    const files = event.target.files;
+
+    if (!files) return;
+
+    Array.from(files).forEach((file) => {
+      const imageUrl = URL.createObjectURL(file);
+
+      const photo: FigurePhoto = {
+        id: crypto.randomUUID(),
+
+        figureId,
+
+        url: imageUrl,
+
+        caption: null,
+
+        isPrimary: false,
+
+        createdAt: new Date().toISOString(),
+      };
+
+      saveFigurePhoto(photo);
+    });
+
+    // Atualiza o estado apenas uma vez, após salvar todas as fotos
+    setPhotos(getFigurePhotos(figureId));
+
+    // Limpa o input para permitir selecionar novamente a mesma imagem
+    event.target.value = "";
+  }
 
   return (
     <div className="space-y-4">
@@ -31,6 +66,7 @@ export function FigureGallery({ figureId }: Props) {
         multiple // possibilidade de selecionar várias fotos ao mesmo tempo
         capture="environment" // permitte que a câmera do celular seja aberta para tirar fotos
         className="hidden" // oculta o input, pois o label é quem vai disparar a ação de upload
+        onChange={handleUpload} // chama a função handleUpload quando o usuário seleciona arquivos
       />
 
       {/* Grid de fotos */}
@@ -56,10 +92,10 @@ export function FigureGallery({ figureId }: Props) {
                 />
               </div>
 
-              <div className="p-2">
+              <div className="p-0"> {/* Espaço para legenda, se houver - poder criar um modal pra poder criar ou editar */}
                 {photo.caption && (
                   <p className="text-xs">
-                    {photo.caption}
+                    {photo.caption} olá mundo
                   </p>
                 )}
               </div>
