@@ -1,8 +1,10 @@
 import { useState } from "react";
 
-import { getFigurePhotos, saveFigurePhoto } from "../../lib/figurePhotoStorage";
+import { getFigurePhotos, saveFigurePhoto, deleteFigurePhoto, setPrimaryPhoto } from "../../lib/figurePhotoStorage";
 import type { FigurePhoto } from "../../types/FigurePhoto";
 import { FigurePhotoModal } from "../FigurePhotoModal";
+
+import { BsStar, BsStarFill, BsTrash } from "react-icons/bs";
 
 type Props = {
   figureId: string;
@@ -13,38 +15,157 @@ export function FigureGallery({ figureId }: Props) {
 
   const [selectedPhoto, setSelectedPhoto] = useState<FigurePhoto | null>(null);
 
-  function handleUpload(
+  function resizeAndCompressImage(
+    file: File,
+    maxWidth = 1280,
+    quality = 0.8
+  ): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const image = new Image();
+
+      const imageUrl = URL.createObjectURL(file);
+
+      image.onload = () => {
+        // Obtém as dimensões originais da imagem
+        let { width, height } = image;
+
+        // Redimensiona apenas se a imagem ultrapassar a largura máxima
+        if (width > maxWidth) {
+          const ratio = maxWidth / width;
+
+          width = maxWidth;
+          height = Math.round(height * ratio);
+        }
+
+        // Cria um canvas temporário para processar a imagem
+        const canvas = document.createElement("canvas");
+
+        canvas.width = width;
+        canvas.height = height;
+
+        const context = canvas.getContext("2d");
+
+        if (!context) {
+          URL.revokeObjectURL(imageUrl);
+
+          reject(new Error("Não foi possível processar a imagem."));
+          return;
+        }
+
+        // Desenha a imagem redimensionada no canvas
+        context.drawImage(image, 0, 0, width, height);
+
+        // Converte a imagem para JPEG comprimido
+        const compressedImage = canvas.toDataURL(
+          "image/jpeg",
+          quality
+        );
+
+        // Libera a URL temporária da memória
+        URL.revokeObjectURL(imageUrl);
+
+        resolve(compressedImage);
+      };
+
+      image.onerror = () => {
+        URL.revokeObjectURL(imageUrl);
+
+        reject(new Error("Não foi possível carregar a imagem."));
+      };
+
+      // Carrega o arquivo selecionado para processamento
+      image.src = imageUrl;
+    });
+  }
+
+  async function handleUpload(
     event: React.ChangeEvent<HTMLInputElement>
   ) {
     const files = event.target.files;
 
+    console.log("Arquivos recebidos: ", files);
+
     if (!files) return;
 
-    Array.from(files).forEach((file) => {
-      const imageUrl = URL.createObjectURL(file);
+    try {
+      for (const file of Array.from(files)) {
+        console.log("Processando arquivo: ", file);
 
-      const photo: FigurePhoto = {
-        id: crypto.randomUUID(),
+        const imageUrl = await resizeAndCompressImage(file);
 
-        figureId,
+        console.log("Imagem convertida!");
 
-        url: imageUrl,
+        const photo: FigurePhoto = {
+          id: crypto.randomUUID(),
+          figureId,
+          url: imageUrl,
+          caption: null,
+          isPrimary: false,
+          createdAt: new Date().toISOString(),
+        };
 
-        caption: null,
+        saveFigurePhoto(photo);
 
-        isPrimary: false,
-
-        createdAt: new Date().toISOString(),
+        console.log("Foto salva: ", photo);
       };
 
-      saveFigurePhoto(photo);
-    });
+      console.log("Atualizando galeria...");
 
-    // Atualiza o estado apenas uma vez, após salvar todas as fotos
-    setPhotos(getFigurePhotos(figureId));
+      // Atualiza o estado apenas uma vez, após salvar todas as fotos
+      setPhotos(getFigurePhotos(figureId));
+
+    } catch (error) {
+      console.error(
+        "erro ao processar a imagem",
+        error
+      );
+    }
 
     // Limpa o input para permitir selecionar novamente a mesma imagem
     event.target.value = "";
+  }
+
+  // Função pra deletar foto
+  function handleDeletePhoto(photoId: string) {
+
+    const photoToDelete = photos.find(
+      (photo) => photo.id === photoId
+    );
+
+    // Impede a exclusão da foto principal enquanto houver outras fotos disponíveis para serem definidas como principal
+    if (photoToDelete?.isPrimary && photos.length > 1) {
+      alert(
+        "Não é possível excluir a foto principal. " +
+        "Defina outra foto como principal antes de excluí-la."
+      );
+
+      return;
+    }
+    const confirmed = confirm(
+      "Deseja realmente excluir esta foto?"
+    );
+
+    if (!confirmed) return;
+
+    // Remove a foto da camada de armazenamento
+    deleteFigurePhoto(photoId);
+
+    // Atualiza as fotos exibidas na galeria
+    setPhotos(getFigurePhotos(figureId));
+
+    // Fecha o modal caso a foto excluída esteja aberta
+    if (selectedPhoto?.id === photoId) {
+      setSelectedPhoto(null);
+    }
+  }
+
+  // Função para definir foto principal para a figura.
+  function handleSetPrimaryPhoto(photoId: string) {
+    // Define a foto selecionada como principal
+    setPrimaryPhoto(figureId, photoId);
+
+    // Atualiza a galeria para refletir a alteração
+    setPhotos(getFigurePhotos(figureId));
   }
 
   return (
@@ -69,7 +190,7 @@ export function FigureGallery({ figureId }: Props) {
         id="gallery-upload"
         accept="image/*" // aceita apenas imagens
         multiple // possibilidade de selecionar várias fotos ao mesmo tempo
-        capture="environment" // permitte que a câmera do celular seja aberta para tirar fotos
+        // capture="environment" // permitte que a câmera do celular seja aberta para tirar fotos
         className="hidden" // oculta o input, pois o label é quem vai disparar a ação de upload
         onChange={handleUpload} // chama a função handleUpload quando o usuário seleciona arquivos
       />
@@ -96,8 +217,41 @@ export function FigureGallery({ figureId }: Props) {
                   loading="lazy" // adia o carregamento da imagem até que ela esteja próxima da área visível da página
                   className="w-full h-40 object-cover cursor-pointer"
                 />
-              </div>
 
+                {/* Ações da foto */}
+                <div className="absolute top-2 right-2 flex gap-2">
+                  {/* Definir a foto como principal */}
+                  <button
+                    type="button"
+                    onClick={() => handleSetPrimaryPhoto(photo.id)}
+                    className="bg-black/60 text-white rounded-full p-2 hover:bg-black/80 transition"
+                    aria-label={photo.isPrimary ? "Foto principal" : "Definir como foto principal"}
+                    title={photo.isPrimary ? "Foto principal" : "Definir como foto principal"}
+                  >
+                    {photo.isPrimary ? (<BsStarFill color="gold" size={16} />) : (<BsStar size={16} />)}
+                  </button>
+
+                  {/* Exclui a foto */}
+                  <button
+                    type="button"
+                    onClick={() => handleDeletePhoto(photo.id)}
+                    className="bg-red-600/90 text-white rounded-full p-2 hover:bg-red-700 transition"
+                    aria-label="Excluir foto"
+                    title="Excluir foto"
+                  >
+                    <BsTrash size={16} />
+                  </button>
+
+                </div>
+
+                {/* Indica visualmente a foto principal */}
+                {photo.isPrimary && (
+                  <span className="absolute bottom-2 left-2 bg-primary px-2 py-1 rounded text-xs text-white">
+                    Principal
+                  </span>
+                )}
+
+              </div>
               <div className="p-0"> {/* Espaço para legenda, se houver - poder criar um modal pra poder criar ou editar */}
                 {photo.caption && (
                   <p className="text-xs">

@@ -8,11 +8,6 @@ type Props = {
 
   // Usamos photo como estado de abertura: uma foto abre o modal e null o fecha,
   // evitando um estado separado apenas para controlar sua visibilidade.
-
-
-  // Usamos assim ao invés de usar isOpen: booolean e photo: FigurePhoto, porque podemos usar a própria existência da
-  // foto como estado de abertura do modal, e null como estado de fechamento do modal, evitando a necessidade de um
-  // estado extra para controlar a abertura do modal
 }
 
 export function FigurePhotoModal({ photo, onClose }: Props) {
