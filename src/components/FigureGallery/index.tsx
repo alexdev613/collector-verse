@@ -2,6 +2,7 @@ import { useState } from "react";
 
 import { getFigurePhotos, saveFigurePhoto } from "../../lib/figurePhotoStorage";
 import type { FigurePhoto } from "../../types/FigurePhoto";
+import { FigurePhotoModal } from "../FigurePhotoModal";
 
 type Props = {
   figureId: string;
@@ -9,6 +10,8 @@ type Props = {
 
 export function FigureGallery({ figureId }: Props) {
   const [photos, setPhotos] = useState(getFigurePhotos(figureId));
+
+  const [selectedPhoto, setSelectedPhoto] = useState<FigurePhoto | null>(null);
 
   function handleUpload(
     event: React.ChangeEvent<HTMLInputElement>
@@ -59,6 +62,8 @@ export function FigureGallery({ figureId }: Props) {
 
       </div>
 
+      <FigurePhotoModal photo={selectedPhoto} onClose={() => setSelectedPhoto(null)} />
+
       <input
         type="file"
         id="gallery-upload"
@@ -87,15 +92,16 @@ export function FigureGallery({ figureId }: Props) {
                 <img
                   src={photo.url}
                   alt={photo.caption ?? "Foto da figure"}
+                  onClick={() => setSelectedPhoto(photo)} // abre o modal ao clicar na foto
                   loading="lazy" // adia o carregamento da imagem até que ela esteja próxima da área visível da página
-                  className="w-full h-40 object-cover"
+                  className="w-full h-40 object-cover cursor-pointer"
                 />
               </div>
 
               <div className="p-0"> {/* Espaço para legenda, se houver - poder criar um modal pra poder criar ou editar */}
                 {photo.caption && (
                   <p className="text-xs">
-                    {photo.caption} olá mundo
+                    {photo.caption}
                   </p>
                 )}
               </div>
