@@ -115,6 +115,29 @@ export function setPrimaryPhoto(
   );
 }
 
+// Remove a definição de foto principal de uma figure.
+export function removePrimaryPhoto(figureId: string) {
+
+  // Recupera todas as fotos armazenadas
+  const photos = getFigurePhotos();
+
+  // Desmarca como principal apenas as fotos da figure informada
+  const updatedPhotos = photos.map((photo) => ({
+    ...photo,
+    isPrimary:
+      photo.figureId === figureId
+        ? false
+        : photo.isPrimary,
+  }));
+
+  // Salva a lista atualizada preservando todas as figures
+  localStorage.setItem(
+    STORAGE_KEY,
+    JSON.stringify(updatedPhotos)
+  );
+
+}
+
 // Retorna a quantidade de fotos cadastradas para uma figure
 export function getFigurePhotoCount(
   figureId: string

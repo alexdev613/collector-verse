@@ -1,6 +1,12 @@
 import { useState } from "react";
 
-import { getFigurePhotos, saveFigurePhoto, deleteFigurePhoto, setPrimaryPhoto } from "../../lib/figurePhotoStorage";
+import {
+  getFigurePhotos,
+  saveFigurePhoto,
+  deleteFigurePhoto,
+  setPrimaryPhoto,
+  removePrimaryPhoto
+} from "../../lib/figurePhotoStorage";
 import type { FigurePhoto } from "../../types/FigurePhoto";
 import { FigurePhotoModal } from "../FigurePhotoModal";
 
@@ -8,9 +14,10 @@ import { BsStar, BsStarFill, BsTrash } from "react-icons/bs";
 
 type Props = {
   figureId: string;
+  onPhotosChange?: () => void;
 };
 
-export function FigureGallery({ figureId }: Props) {
+export function FigureGallery({ figureId, onPhotosChange }: Props) {
   const [photos, setPhotos] = useState(getFigurePhotos(figureId));
 
   const [selectedPhoto, setSelectedPhoto] = useState<FigurePhoto | null>(null);
@@ -161,11 +168,28 @@ export function FigureGallery({ figureId }: Props) {
 
   // Função para definir foto principal para a figura.
   function handleSetPrimaryPhoto(photoId: string) {
-    // Define a foto selecionada como principal
-    setPrimaryPhoto(figureId, photoId);
 
-    // Atualiza a galeria para refletir a alteração
+    const selectedPhoto = photos.find(
+      (photo) => photo.id === photoId
+    );
+
+    if (!selectedPhoto) return;
+
+    if (selectedPhoto.isPrimary) {
+
+      removePrimaryPhoto(figureId);
+
+    } else {
+
+      setPrimaryPhoto(figureId, photoId);
+
+    }
+
     setPhotos(getFigurePhotos(figureId));
+
+    // Informa ao componente pai que a galeria mudou
+    onPhotosChange?.();
+
   }
 
   return (

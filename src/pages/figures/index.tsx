@@ -1,14 +1,24 @@
+import { useReducer } from "react"; // useReducer é um Hook do React utilizado para controlar um estado através de uma função chamada reducer.
 import { useParams, useNavigate } from "react-router-dom";
 import { getFigures, deleteFigure } from "../../lib/figureStorage";
 import { BsTrash } from "react-icons/bs";
 
 import { FigureGallery } from "../../components/FigureGallery";
 
+import { getFigurePhotos } from "../../lib/figurePhotoStorage";
+
 // NÃO BUSCA POR PERSONAGEM, BUSCA GLOBALMENTE POR FIGURE!! Porque /figures/:id é uma entidade própria 👉 independe de onde o usuário veio
 
 export default function FigurePage() {
   const { id } = useParams();
   const navigate = useNavigate();
+
+  // Cria uma função para forçar uma nova renderização quando alguma alteração acontecer na galeria.
+  // Ignoramos o estado atual porque precisamos apenas da função refreshGallery para disparar a atualização.
+  const [, refreshGallery] = useReducer(
+    (version) => version + 1,
+    0
+  )
 
   // 🔥 agora vem da storage layer
   const allFigures = getFigures();
@@ -24,24 +34,33 @@ export default function FigurePage() {
     );
   }
 
+  // Procura a foto marcada como principal na galeria
+  const primaryPhoto = getFigurePhotos(figure.id).find(
+    (photo) => photo.isPrimary
+  );
+
+  // Usa a foto principal da galeria. Se não existir, utiliza a imagem original da figure(aquela escolhida inicialmente para criar a figure).
+  const heroImage = primaryPhoto?.url ?? figure.image;
+
   return (
     <div className="bg-background text-text min-h-screen">
 
       {/* HERO */}
       <div className="relative h-[320px] w-full overflow-hidden rounded-b-3xl">
-        {/* background blur */}
-        {figure.image && (
+        {/* background blur, borrado usando a imagem do Hero */}
+        {heroImage && (
           <img
-            src={figure.image}
+            src={heroImage}
             alt={figure.name}
             className="absolute w-full h-full object-cover blur-xl scale-110"
           />
         )}
 
         {/* imagem principal */}
-        {figure.image && (
+        {heroImage && (
           <img
-            src={figure.image}
+            src={heroImage}
+            alt={figure.name}
             className="relative w-full h-full object-contain"
           />
         )}
@@ -152,7 +171,12 @@ export default function FigurePage() {
         </div>
 
         {/* GALERIA */}
-        <FigureGallery figureId={figure.id} />
+        {/* Quando a galeria sofre alterações, refreshGallery é chamado através de onPhotoChange
+        para renderizar novamente o FigurePage e atualizar o Hero*/}
+        <FigureGallery
+          figureId={figure.id}
+          onPhotosChange={refreshGallery}
+        />
 
         {/* GALERIA (mock) */}
         <div>
@@ -187,11 +211,108 @@ export default function FigurePage() {
   )
 }
 
-// Evolui no fututo:
 
-// criar getFigureById(id) (helper)
-// separar figures em estrutura flat
-// adicionar:
+/*
+    useReducer é um Hook do React utilizado para controlar um estado através
+    de uma função chamada reducer.
+
+    Neste caso, não precisamos ler o valor atual do estado.
+    Precisamos apenas de uma função capaz de alterar esse estado e provocar
+    uma nova renderização do componente.
+
+    O primeiro valor retornado pelo useReducer seria o estado atual.
+    Como não precisamos utilizá-lo, deixamos esse espaço vazio:
+
+    const [, refreshGallery] = ...
+
+    O segundo valor é a função dispatch, que chamamos de refreshGallery.
+    Sempre que refreshGallery() for executada, o reducer será chamado:
+
+    version => version + 1
+
+    Isso gera um novo estado e faz o React renderizar novamente o FigurePage.
+
+    O valor inicial do estado é 0.
+
+    const [, refreshGallery] = useReducer(
+      (version) => version + 1,
+      0
+    );
+
+
+    A FigureGallery recebe o id da figure para saber quais fotos
+    pertencem a ela.
+
+    Também recebe a função refreshGallery através da prop onPhotosChange.
+
+    Sempre que alguma foto da galeria for adicionada, excluída ou tiver
+    seu status de foto principal alterado, a FigureGallery pode chamar:
+
+    onPhotosChange();
+
+    Como a função recebida é refreshGallery, isso altera internamente
+    o estado controlado pelo useReducer e provoca uma nova renderização
+    do FigurePage.
+
+    Com a nova renderização, o FigurePage executa novamente:
+
+    getFigurePhotos(figure.id)
+
+    e recalcula qual imagem deve ser utilizada no Hero.
+
+    <FigureGallery
+      figureId={figure.id}
+      onPhotosChange={refreshGallery}
+    />
+
+*/
+
+/* Segunda explicação de como age o useReducer aqui:
+
+// useReducer controla um estado interno que será usado apenas
+// para forçar uma nova renderização quando a galeria for alterada.
+//
+// Não precisamos utilizar o valor atual do estado, por isso
+// ignoramos o primeiro valor retornado com uma vírgula:
+//
+// const [, refreshGallery]
+//
+// refreshGallery é a função que atualiza esse estado.
+// Cada chamada executa o reducer abaixo e faz o FigurePage
+// renderizar novamente.
+//
+// O reducer recebe a versão atual e gera uma nova versão:
+//
+// version => version + 1
+//
+// O estado inicial começa em 0.
+    const [, refreshGallery] = useReducer(
+      (version) => version + 1,
+      0
+    );
+
+
+    A galeria recebe o id da figure para trabalhar apenas com
+  as fotos pertencentes a ela.
+
+  onPhotosChange recebe a função refreshGallery.
+
+  Quando a galeria sofre alguma alteração, ela chama:
+
+  onPhotosChange()
+
+  Isso executa refreshGallery(), que atualiza o estado interno
+  do useReducer e faz o FigurePage renderizar novamente.
+
+  Assim, o Hero consegue buscar novamente a foto principal.
+
+  <FigureGallery
+    figureId={figure.id}
+    onPhotosChange={refreshGallery}
+  />
+*/
+
+// Evoluir no fututo:
+
 // pack info
-// galeria de fotos do usuário
 // histórico (teve/vendeu)
