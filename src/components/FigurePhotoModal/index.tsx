@@ -33,6 +33,12 @@ export function FigurePhotoModal({ photo, onClose }: Props) {
     y: 0,
   });
 
+  // Referência para a área que funciona como viewport da imagem. Usamos para calcular limites de arraste.
+  const viewportRef = useRef<HTMLDivElement>(null); // viewportRef nos diz quanto espaço a área de visualização ocupa na tela.
+
+  // Referência para a própria imagem. Usamos para calcular limites de arraste.
+  const imageRef = useRef<HTMLImageElement>(null); // imageRef nos diz quanto a imagem ocupa de espaço na tela.
+
   // Sempre que uma foto for selecionada, voltamos o zoom para 100% e centralizamos a imagem.
   useEffect(() => {
     setZoom(1); // Reseta o zoom para 100% sempre que uma nova foto é selecionada.
@@ -41,6 +47,35 @@ export function FigurePhotoModal({ photo, onClose }: Props) {
       y: 0,
     });
   }, [photo?.id]);
+
+  // Limita a posição da imagem para impedir que ela seja arrastada para fora do viewport.
+  const clampPosition = (x: number, y: number) => {
+    // Se ainda não temos acesso ao viewport ou à imagem, mantemos a posição original.
+    if (!viewportRef.current || !imageRef.current) {
+      return { x, y };
+    }
+
+    // Mede o tamanho disponível do viewport.
+    const viewportRect = viewportRef.current.getBoundingClientRect();
+
+    // Mede o tamanho natural da imagem dentro do layout, antes da transformação de zoom e deslocamento.
+    const imageWidth = imageRef.current.offsetWidth;
+    const imageHeight = imageRef.current.offsetHeight;
+
+    // Calcula o tamanho real da imagem considerando o zoom atual.
+    const scaledWidth = imageWidth * zoom;
+    const scaledHeight = imageHeight * zoom;
+
+    // Calcula quanto a imagem pode ultrapassar o viewport horizontalmente e verticalmente.
+    const maxX = Math.max(0, (scaledWidth - viewportRect.width) / 2);
+    const maxY = Math.max(0, (scaledHeight - viewportRect.height) / 2);
+
+    // Impede que a posição ultrapasse os limites calculados.
+    const limitedX = Math.min(Math.max(x, -maxX), maxX);
+    const limitedY = Math.min(Math.max(y, -maxY), maxY);
+
+    return { x: limitedX, y: limitedY, };
+  }
 
   // Aumenta o zoom em 25%, limitado a 300%.
   const zoomIn = () => {
@@ -54,11 +89,27 @@ export function FigurePhotoModal({ photo, onClose }: Props) {
 
       // Se voltarmos para 100%, não existe mais necessidade de manter a imagem deslocada.
       if (newZoom === 1) {
-        setPosition({
-          x: 0,
-          y: 0,
-        });
+        setPosition({ x: 0, y: 0, });
+        return newZoom;
       }
+
+      // Ajusta a posição caso ela tenha ultrapassado os limites permitidos pelo novo zoom.
+      const imageWidth = imageRef.current?.offsetWidth ?? 0;
+      const imageHeight = imageRef.current?.offsetHeight ?? 0;
+      const viewportWidth = viewportRef.current?.clientWidth ?? 0;
+      const viewportHeight = viewportRef.current?.clientHeight ?? 0;
+
+      const scaledWidth = imageWidth * newZoom;
+      const scaledHeight = imageHeight * newZoom;
+
+      const maxX = Math.max(0, (scaledWidth - viewportWidth) / 2);
+
+      const maxY = Math.max(0, (scaledHeight - viewportHeight) / 2);
+
+      setPosition((currentPosition) => ({
+        x: Math.min(Math.max(currentPosition.x, -maxX), maxX),
+        y: Math.min(Math.max(currentPosition.y, -maxY), maxY),
+      }));
 
       return newZoom;
     });
@@ -78,15 +129,17 @@ export function FigurePhotoModal({ photo, onClose }: Props) {
     };
   };
 
-  // Executado enquanto o usuário movimenta o mouse mantendo o botão pressionada.
+  // Executado enquanto o usuário movimenta o mouse mantendo o botão pressionado.
   const handleMouseMove = (event: React.MouseEvent<HTMLImageElement>) => {
     // Se o usuário não estiver arrastando a imagem, não fazemos nada.
     if (!isDragging) return;
 
-    setPosition({
-      x: event.clientX - dragStart.current.x,
-      y: event.clientY - dragStart.current.y,
-    });
+    const newPosition = clampPosition(
+      event.clientX - dragStart.current.x,
+      event.clientY - dragStart.current.y
+    );
+
+    setPosition(newPosition);
   };
 
   // Executado quando o botão do mouse é solto.
@@ -153,9 +206,12 @@ export function FigurePhotoModal({ photo, onClose }: Props) {
 
           A imagem pode ser maior que essa área quando estiver ampliada, mas o conteúdo que ultrapassar os limites do viewport ficará escondido.
         */}
-        <div className="flex max-h-[85vh] items-center justify-center overflow-hidden">
-
+        <div
+          ref={viewportRef}
+          className="flex max-h-[85vh] items-center justify-center overflow-hidden"
+        >
           <img
+            ref={imageRef}
             src={photo.url}
             alt={photo.caption ?? "Foto da figure"}
 
@@ -164,9 +220,8 @@ export function FigurePhotoModal({ photo, onClose }: Props) {
               zoom > 1  → mão aberta
               arrastando  → mão fechada
             */
-            className={`max-h-[85vh] max-w-full rounded-lg object-contain transition-transform duration-200 ${
-              zoom > 1 ? isDragging ? "cursor-grabbing" : "cursor-grab" : "cursor-default"
-            }`}
+            className={`max-h-[85vh] max-w-full rounded-lg object-contain transition-transform duration-200 ${zoom > 1 ? isDragging ? "cursor-grabbing" : "cursor-grab" : "cursor-default"
+              }`}
 
             /* Primeiro deslocamos a imagem. Depois aplicamos o zoom.
                translate = posição
