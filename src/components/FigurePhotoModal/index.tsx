@@ -26,8 +26,8 @@ export function FigurePhotoModal({ photo, onClose }: Props) {
   // Indica se o usuário está segurando a imagem para arrastá-la.
   const [isDragging, setIsDragging] = useState(false);
 
-  // Guarda a posição do mouse no momento em que o arraste começa.
-  // Usamos useRef porque essa informação não precisa disparar re-renderizações do componente quando alterada.
+  // Guarda a posição do ponteiro no momento em que o arraste começa.
+  // Usamos useRef porque essa informação não precisa provocar uma nova renderização quando o componente é alterado.
   const dragStart = useRef({
     x: 0,
     y: 0,
@@ -58,11 +58,11 @@ export function FigurePhotoModal({ photo, onClose }: Props) {
     // Mede o tamanho disponível do viewport.
     const viewportRect = viewportRef.current.getBoundingClientRect();
 
-    // Mede o tamanho natural da imagem dentro do layout, antes da transformação de zoom e deslocamento.
+    // Mede o tamanho renderizado da imagem antes das transformações de zoom e deslocamento.
     const imageWidth = imageRef.current.offsetWidth;
     const imageHeight = imageRef.current.offsetHeight;
 
-    // Calcula o tamanho real da imagem considerando o zoom atual.
+    // Calcula o tamanho visual da imagem após aplicar o zoom.
     const scaledWidth = imageWidth * zoom;
     const scaledHeight = imageHeight * zoom;
 
@@ -74,8 +74,11 @@ export function FigurePhotoModal({ photo, onClose }: Props) {
     const limitedX = Math.min(Math.max(x, -maxX), maxX);
     const limitedY = Math.min(Math.max(y, -maxY), maxY);
 
-    return { x: limitedX, y: limitedY, };
-  }
+    return {
+      x: limitedX,
+      y: limitedY,
+    };
+  };
 
   // Aumenta o zoom em 25%, limitado a 300%.
   const zoomIn = () => {
@@ -115,22 +118,25 @@ export function FigurePhotoModal({ photo, onClose }: Props) {
     });
   };
 
-  // Executado quando o usuário pressiona o botão esquerdo do mouse sobre a imagem que está ampliada.
-  const handleMouseDown = (event: React.MouseEvent<HTMLImageElement>) => {
+  // Inicia o arraste quando o usuário pressiona ou toca na imagem ampliada.
+  const handlePointerDown = (event: React.PointerEvent<HTMLImageElement>) => {
     // Em 100% não permitimos arrastar a imagem.
     if (zoom <= 1) return;
 
     setIsDragging(true);
 
-    // Guardamos a diferença entre a posição atual do mouse e a posição atual da imagem.
+    // Mantém o elemento recebendo os eventos deste ponteiro mesmo que ele saia da área da imagem.
+    event.currentTarget.setPointerCapture(event.pointerId);
+
+    // Guardamos a diferença entre a posição atual do ponteiro e a posição atual da imagem.
     dragStart.current = {
       x: event.clientX - position.x,
       y: event.clientY - position.y,
     };
   };
 
-  // Executado enquanto o usuário movimenta o mouse mantendo o botão pressionado.
-  const handleMouseMove = (event: React.MouseEvent<HTMLImageElement>) => {
+  // Atualiza a posição da imagem enquanto o usuário realiza o arraste.
+  const handlePointerMove = (event: React.PointerEvent<HTMLImageElement>) => {
     // Se o usuário não estiver arrastando a imagem, não fazemos nada.
     if (!isDragging) return;
 
@@ -142,15 +148,12 @@ export function FigurePhotoModal({ photo, onClose }: Props) {
     setPosition(newPosition);
   };
 
-  // Executado quando o botão do mouse é solto.
-  const handleMouseUp = () => {
+  // Finaliza o arraste quando o ponteiro é liberado.
+  const handlePointerUp = (event: React.PointerEvent<HTMLImageElement>) => {
     setIsDragging(false);
-  };
 
-  // Caso o usuário arraste o mouse para fora da imagem, encerramos o estado de arraste
-  // para evitar que a imagem continue se movendo mesmo com o mouse fora da área da imagem.
-  const handleMouseLeave = () => {
-    setIsDragging(false);
+    // Libera a captura deste ponteiro após o arraste.
+    event.currentTarget.releasePointerCapture(event.pointerId);
   };
 
   // Se não existe uma foto selecionada, não renderizamos o modal.
@@ -228,6 +231,7 @@ export function FigurePhotoModal({ photo, onClose }: Props) {
                scale = tamanho
             */
             style={{
+              touchAction: "none",
               transform: `translate(${position.x}px, ${position.y}px) scale(${zoom})`,
               transition: isDragging
                 ? "none"
@@ -237,17 +241,17 @@ export function FigurePhotoModal({ photo, onClose }: Props) {
             /* Impede o comportamento nativo do navegador de arrastar a imagem. */
             draggable={false}
 
-            // Início do arraste.
-            onMouseDown={handleMouseDown}
+            // Inicia o arraste.
+            onPointerDown={handlePointerDown}
 
-            // Movimento durante o arraste.
-            onMouseMove={handleMouseMove}
+            // Atualiza a posição durante o arraste.
+            onPointerMove={handlePointerMove}
 
-            // Fim do arraste.
-            onMouseUp={handleMouseUp}
+            // Finaliza o arraste.
+            onPointerUp={handlePointerUp}
 
-            // Segurança: caso o mouse saia da área da imagem, encerramos o arraste.
-            onMouseLeave={handleMouseLeave}
+            // Cancela o arraste caso o navegador interrompa o ponteiro.
+            onPointerCancel={handlePointerUp}
           />
         </div>
       </div>
